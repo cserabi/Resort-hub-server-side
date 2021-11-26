@@ -99,7 +99,7 @@ async function run() {
     })
 
 
-    //Delete API 
+    //Delete API for user
     app.delete('/users/:id', async (req, res) => {
       const id = req.params.id;
       // 
