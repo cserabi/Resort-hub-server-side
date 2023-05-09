@@ -8,8 +8,6 @@ const ObjectId = require('mongodb').ObjectId;
 const { MongoClient } = require('mongodb');
 const port = process.env.PORT || 5000;
 
-
-
 //middleware
 
 app.use(cors());
@@ -18,19 +16,31 @@ app.use
 app.use(express.json());
 
 
-const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_password}@cluster0.chwoh.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`;
+const uri = `mongodb+srv://mydbuser1:Hv1WaumIV9AOS6C6@cluster0.chwoh.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
 async function run() {
   try {
     await client.connect();
     const database = client.db("insertDB");
     const userCollection = database.collection("user");
+    const reviewCollection = database.collection("reviews");
 
     const database_tour = client.db("TourPlace");
+    // const reviewCollection = database_tour.collection("reviews");
 
     const userCollection_tour = database_tour.collection("place");
 
     // create a document to insert
+
+
+    // post API
+    app.post('/users', async (req, res) => {
+      const newUser = req.body;
+      const result = await userCollection.insertOne(newUser);
+      console.log('hitting the post', req.body);
+      console.log('added user ', result)
+      res.send('hit the post');
+    })
 
     //Get api
 
@@ -52,6 +62,29 @@ async function run() {
     })
 
 
+    //post api
+
+    app.post('/reviews', async (req, res) => {
+      const addReview = req.body;
+      const result = await reviewCollection.insertOne(addReview);
+
+      console.log(addReview)
+
+      res.send(result);
+    })
+
+
+    // get API
+    app.get('/reviews', async (req, res) => {
+
+      const reviewcursor = reviewCollection.find({});
+      const reviewService = await reviewcursor.toArray();
+      res.json(reviewService);
+    })
+
+
+
+
     // single user display
 
     app.get('/users/:id', async (req, res) => {
@@ -67,14 +100,7 @@ async function run() {
 
 
 
-    // post API
-    app.post('/users', async (req, res) => {
-      const newUser = req.body;
-      const result = await userCollection.insertOne(newUser);
-      console.log('hitting the post', req.body);
-      console.log('added user ', result)
-      res.send('hit the post');
-    })
+
 
     //Update api
 
